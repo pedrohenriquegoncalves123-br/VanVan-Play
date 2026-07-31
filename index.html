@@ -216,7 +216,7 @@
         }
 
         /*=========================================
-           OBSTÁCULOS E METEORO
+           OBSTÁCULOS E METEORO COM RASTRO DE FOGO
         =========================================*/
         .obstacle {
             position: absolute;
@@ -227,12 +227,35 @@
             filter: drop-shadow(3px 6px 5px rgba(0, 0, 0, 0.4));
         }
 
-        /* Animação de Rotação do Meteoro Caindo */
+        /* Rastro de Fogo no Céu */
+        .fire-tail-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fire-tail-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -70px;
+            left: -70px;
+            width: 100px;
+            height: 12px;
+            background: linear-gradient(90deg, rgba(255, 69, 0, 0) 0%, rgba(255, 140, 0, 0.8) 50%, rgba(255, 215, 0, 1) 100%);
+            border-radius: 10px;
+            transform: rotate(45deg);
+            filter: drop-shadow(0 0 8px #ff4500);
+            pointer-events: none;
+        }
+
         .meteor-falling-icon {
-            color: #e67e22;
+            color: #ff4500;
             font-size: 45px;
             transform: rotate(135deg);
-            filter: drop-shadow(-5px -5px 10px #f39c12);
+            filter: drop-shadow(0 0 15px #ff8c00);
+            position: relative;
+            z-index: 2;
         }
 
         .fly-wrapper {
@@ -490,7 +513,7 @@
         const mobileJumpBtn = document.getElementById('mobile-jump-btn');
 
         let isJumping = false; let isDucking = false; let isGameOver = false; let isPaused = false;
-        let score = 0; let isNight = false;
+        let score = 0; let lastMeteorScore = 0; let isNight = false;
         let hiScore = localStorage.getItem('dragonRunGalaxy') || 0;
 
         function formatScore(num) { return Math.floor(num).toString().padStart(5, '0'); }
@@ -556,54 +579,22 @@
 
         function triggerEarthquake() {
             container.classList.remove('shake');
-            void container.offsetWidth; // Força reflow para reiniciar animação
+            void container.offsetWidth;
             container.classList.add('shake');
             setTimeout(() => container.classList.remove('shake'), 300);
         }
 
-        function spawnObstacle() {
+        // Função exclusiva para criar o Meteoro com Rastro de Fogo
+        function spawnMeteor() {
             const obstacle = document.createElement('div');
             obstacle.classList.add('obstacle');
 
-            let r = Math.random();
-            let width, height, bottom;
-            let iconHTML = '';
-            let isMeteor = false;
-
-            if (r < 0.20) {
-                width = 30; height = 45; bottom = 45;
-                iconHTML = `<i class="fa-solid fa-tree" style="color: #16a085; font-size: 50px;"></i>`;
-            } else if (r < 0.40) {
-                width = 30; height = 35; bottom = 45;
-                iconHTML = `<div class="fire-wrapper"><i class="fa-solid fa-fire" style="color: #e74c3c; font-size: 45px;"></i></div>`;
-            } else if (r < 0.60) {
-                width = 50; height = 55; bottom = 45;
-                iconHTML = `<i class="fa-solid fa-mountain" style="color: #7f8c8d; font-size: 60px;"></i>`;
-            } else if (r < 0.80) {
-                // METEORO DIAGONAL
-                isMeteor = true;
-                width = 40; height = 40; bottom = 45;
-                iconHTML = `<i class="fa-solid fa-meteor meteor-falling-icon"></i>`;
-            } else {
-                const isHigh = Math.random() > 0.5;
-                width = 45; height = 40; bottom = isHigh ? 130 : 60;
-                iconHTML = `
-                    <div class="fly-wrapper">
-                        <i class="fa-solid fa-rocket rocket-icon"></i>
-                    </div>`;
-            }
+            let width = 40; let height = 40; let bottom = 45;
+            let iconHTML = `<div class="fire-tail-wrapper"><i class="fa-solid fa-meteor meteor-falling-icon"></i></div>`;
 
             const cWidth = getContainerWidth();
-            let startX = cWidth;
-            let currentY = bottom;
-            let falling = false;
-
-            if (isMeteor) {
-                // Meteoro cai da esquerda para a direita bem longe do boneco
-                startX = 200 + Math.random() * (cWidth - 400);
-                currentY = 320;
-                falling = true;
-            }
+            let startX = 180 + Math.random() * (cWidth - 360);
+            let currentY = 320;
 
             obstacle.style.width = width + 'px'; obstacle.style.height = height + 'px';
             obstacle.style.left = startX + 'px'; obstacle.style.bottom = currentY + 'px';
@@ -619,8 +610,57 @@
                 x: startX,
                 y: currentY,
                 targetY: bottom,
-                isMeteor: isMeteor,
-                falling: falling
+                isMeteor: true,
+                falling: true
+            });
+        }
+
+        function spawnObstacle() {
+            const obstacle = document.createElement('div');
+            obstacle.classList.add('obstacle');
+
+            let r = Math.random();
+            let width, height, bottom;
+            let iconHTML = '';
+
+            if (r < 0.25) {
+                width = 30; height = 45; bottom = 45;
+                iconHTML = `<i class="fa-solid fa-tree" style="color: #16a085; font-size: 50px;"></i>`;
+            } else if (r < 0.50) {
+                width = 30; height = 35; bottom = 45;
+                iconHTML = `<div class="fire-wrapper"><i class="fa-solid fa-fire" style="color: #e74c3c; font-size: 45px;"></i></div>`;
+            } else if (r < 0.75) {
+                width = 50; height = 55; bottom = 45;
+                iconHTML = `<i class="fa-solid fa-mountain" style="color: #7f8c8d; font-size: 60px;"></i>`;
+            } else {
+                const isHigh = Math.random() > 0.5;
+                width = 45; height = 40; bottom = isHigh ? 130 : 60;
+                iconHTML = `
+                    <div class="fly-wrapper">
+                        <i class="fa-solid fa-rocket rocket-icon"></i>
+                    </div>`;
+            }
+
+            const cWidth = getContainerWidth();
+            let startX = cWidth;
+            let currentY = bottom;
+
+            obstacle.style.width = width + 'px'; obstacle.style.height = height + 'px';
+            obstacle.style.left = startX + 'px'; obstacle.style.bottom = currentY + 'px';
+            obstacle.innerHTML = iconHTML;
+
+            obstacle.dataset.width = width;
+            obstacle.dataset.height = height;
+            obstacle.dataset.bottom = bottom;
+
+            container.appendChild(obstacle);
+            obstacles.push({
+                element: obstacle,
+                x: startX,
+                y: currentY,
+                targetY: bottom,
+                isMeteor: false,
+                falling: false
             });
         }
 
@@ -634,7 +674,7 @@
         }
 
         function resetGame() {
-            isGameOver = false; isPaused = false; score = 0; baseGameSpeed = 7.5;
+            isGameOver = false; isPaused = false; score = 0; lastMeteorScore = 0; baseGameSpeed = 7.5;
             dinoBottom = 45; velocity = 0;
             isJumping = false; isDucking = false; frames = 0; nextSpawnFrame = 60;
 
@@ -674,27 +714,25 @@
                 let obs = obstacles[i];
 
                 if (obs.falling) {
-                    // Mover na diagonal (caindo da esquerda para a direita)
+                    // Mover na diagonal com trajetória estendida
                     obs.x += activeSpeed * 1.2;
-                    obs.y -= 10;
+                    obs.y -= 9;
 
                     if (obs.y <= obs.targetY) {
                         obs.y = obs.targetY;
                         obs.falling = false;
 
-                        // Meteoro impactou o chão: treme o cenário e vira obstáculo estático
+                        // Meteoro impacta o solo
                         triggerEarthquake();
                         obs.element.innerHTML = `<i class="fa-solid fa-mound" style="color: #7f8c8d; font-size: 45px;"></i>`;
                     }
                     obs.element.style.bottom = obs.y + 'px';
                 } else {
-                    // Movimento padrão de rolagem do chão
                     obs.x -= activeSpeed;
                 }
 
                 obs.element.style.left = obs.x + 'px';
 
-                // Hitbox para colisão
                 let dinoHitbox = {
                     left: dinoLeft + 10, right: dinoLeft + 50,
                     bottom: dinoBottom + 5, top: dinoBottom + (isDucking ? 35 : 55)
@@ -716,7 +754,6 @@
                 }
             }
 
-            // Nuvens
             for (let i = 0; i < clouds.length; i++) {
                 clouds[i].x -= activeSpeed * clouds[i].speed;
                 clouds[i].element.style.left = clouds[i].x + 'px';
@@ -746,6 +783,13 @@
 
             score += 0.08;
             scoreElement.innerText = formatScore(score);
+
+            // Verifica a cada 100 pontos alcançados para soltar o Meteoro
+            let currentHundred = Math.floor(score / 100);
+            if (currentHundred > lastMeteorScore) {
+                lastMeteorScore = currentHundred;
+                spawnMeteor();
+            }
 
             let currentIsNight = Math.floor(score / 20) % 2 !== 0;
 
@@ -787,7 +831,7 @@
             jump();
         });
 
-        // Clique com Mouse para Pular no Desktop
+        // Clique com Mouse para PULAR no Desktop
         container.addEventListener('mousedown', (e) => {
             if (e.target.closest('#pause-btn') || e.target.closest('.restart-btn') || e.target.closest('#mobile-jump-btn')) return;
             jump();
