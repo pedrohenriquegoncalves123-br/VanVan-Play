@@ -51,7 +51,7 @@
         }
 
         /*=========================================
-           CÉU NOTURNO E PLANETAS GERADOS VIA JS
+           CÉU NOTURNO GERADO VIA JS
         =========================================*/
         #night-sky {
             position: absolute;
@@ -87,27 +87,6 @@
                 opacity: 1;
                 transform: scale(1.2);
             }
-        }
-
-        /* Base para os novos planetas dinâmicos */
-        .planet {
-            position: absolute;
-            border-radius: 50%;
-            box-shadow: inset -8px -8px 15px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 255, 255, 0.1);
-            z-index: 0;
-        }
-
-        .planet.has-ring::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: -30%;
-            width: 160%;
-            height: 25%;
-            border: 5px solid var(--ring-color, rgba(200, 200, 200, 0.7));
-            border-bottom-color: transparent;
-            border-radius: 50%;
-            transform: translateY(-50%) rotate(20deg);
         }
 
         #celestial {
@@ -271,6 +250,32 @@
         /*=========================================
            INTERFACE
         =========================================*/
+        #pause-btn {
+            position: absolute;
+            top: 20px;
+            left: 25px;
+            font-size: 20px;
+            color: var(--text-color);
+            background: rgba(0, 0, 0, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 10;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        #pause-btn:hover {
+            transform: scale(1.1);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
         #score-board {
             position: absolute;
             top: 20px;
@@ -333,7 +338,10 @@
 <body>
 
     <div id="game-container">
-        <!-- O céu noturno agora conterá os planetas dinâmicos -->
+        <!-- Botão de Pausa no lado esquerdo superior -->
+        <div id="pause-btn" title="Pausar Jogo (P)"><i class="fa-solid fa-pause"></i></div>
+
+        <!-- O céu noturno -->
         <div id="night-sky"></div>
 
         <i id="celestial" class="fa-solid fa-sun"></i>
@@ -361,8 +369,9 @@
         const scoreElement = document.getElementById('score');
         const hiScoreElement = document.getElementById('hi-score');
         const gameOverScreen = document.getElementById('game-over');
+        const pauseBtn = document.getElementById('pause-btn');
 
-        let isJumping = false; let isDucking = false; let isGameOver = false;
+        let isJumping = false; let isDucking = false; let isGameOver = false; let isPaused = false;
         let score = 0; let isNight = false;
         let hiScore = localStorage.getItem('dragonRunGalaxy') || 0;
 
@@ -370,14 +379,14 @@
         hiScoreElement.innerText = formatScore(hiScore);
 
         let baseGameSpeed = 7.5;
-        let obstacles = []; let clouds = []; let planets = [];
+        let obstacles = []; let clouds = [];
         let frames = 0; let nextSpawnFrame = 60;
 
         let dinoBottom = 45; let gravity = 1.1; let velocity = 0; const jumpPower = 18.5;
         let animationId; let groundPos = 0;
 
         function createStars() {
-            nightSky.innerHTML = ''; // Limpa antes de criar
+            nightSky.innerHTML = '';
             for (let i = 0; i < 40; i++) {
                 let star = document.createElement('div');
                 star.className = 'star';
@@ -390,49 +399,33 @@
             }
         }
 
-        // Função para gerar planetas variados como nuvens
-        function spawnPlanet(startX = 900) {
-            if (!isNight) return;
-
-            const planet = document.createElement('div');
-            planet.classList.add('planet');
-
-            // Tamanho e Posição
-            let size = Math.random() * 50 + 20; // 20 a 70px
-            planet.style.width = size + 'px';
-            planet.style.height = size + 'px';
-            planet.style.left = startX + 'px';
-            planet.style.top = (Math.random() * 120 + 10) + 'px';
-
-            // Cores Aleatórias e Vibrantes
-            let hue1 = Math.floor(Math.random() * 360);
-            let hue2 = (hue1 + 60) % 360;
-            planet.style.background = `radial-gradient(circle at 30% 30%, hsl(${hue1}, 80%, 60%), hsl(${hue2}, 70%, 40%), #111)`;
-
-            // 30% de chance de ter um anel
-            if (Math.random() > 0.7) {
-                planet.classList.add('has-ring');
-                planet.style.setProperty('--ring-color', `hsla(${Math.floor(Math.random() * 360)}, 80%, 60%, 0.6)`);
-            }
-
-            // Velocidade muito lenta (paralaxe profundo)
-            let speed = (Math.random() * 0.1) + 0.05;
-
-            nightSky.appendChild(planet);
-            planets.push({ element: planet, x: startX, speed: speed });
-        }
-
         createStars();
+
+        function togglePause() {
+            if (isGameOver) return;
+            isPaused = !isPaused;
+
+            if (isPaused) {
+                cancelAnimationFrame(animationId);
+                pauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+                dino.classList.remove('running');
+            } else {
+                pauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                if (!isJumping && !isDucking) dino.classList.add('running');
+                animationId = requestAnimationFrame(gameLoop);
+            }
+        }
 
         function jump() {
             if (isGameOver) { resetGame(); return; }
+            if (isPaused) return;
             if (!isJumping && !isDucking) {
                 isJumping = true; velocity = jumpPower; dino.classList.remove('running');
             }
         }
 
         function duck(active) {
-            if (isGameOver || isJumping) return;
+            if (isGameOver || isJumping || isPaused) return;
             isDucking = active;
             if (isDucking) {
                 dino.classList.add('ducking'); dino.classList.remove('running');
@@ -441,7 +434,6 @@
             }
         }
 
-        // Sistema expandido de Obstáculos
         function spawnObstacle() {
             const obstacle = document.createElement('div');
             obstacle.classList.add('obstacle');
@@ -451,28 +443,23 @@
             let iconHTML = '';
 
             if (r < 0.20) {
-                // Árvore Clássica
                 width = 30; height = 45; bottom = 45;
                 iconHTML = `<i class="fa-solid fa-tree" style="color: #16a085; font-size: 50px;"></i>`;
             } else if (r < 0.40) {
-                // Fogo no chão
                 width = 30; height = 35; bottom = 45;
                 iconHTML = `<div class="fire-wrapper"><i class="fa-solid fa-fire" style="color: #e74c3c; font-size: 45px;"></i></div>`;
             } else if (r < 0.60) {
-                // Montanha
                 width = 50; height = 55; bottom = 45;
                 iconHTML = `<i class="fa-solid fa-mountain" style="color: #7f8c8d; font-size: 60px;"></i>`;
             } else if (r < 0.80) {
-                // Meteoro ou Fantasma (Depende de ser dia ou noite)
                 if (isNight) {
-                    width = 35; height = 40; bottom = 55 + (Math.random() * 20); // Flutua um pouco
+                    width = 35; height = 40; bottom = 55 + (Math.random() * 20);
                     iconHTML = `<div class="ghost-wrapper"><i class="fa-solid fa-ghost" style="color: #ecf0f1; font-size: 45px; opacity: 0.9;"></i></div>`;
                 } else {
                     width = 40; height = 35; bottom = 45;
                     iconHTML = `<i class="fa-solid fa-meteor" style="color: #d35400; font-size: 45px; transform: scaleX(-1);"></i>`;
                 }
             } else {
-                // Foguete Aéreo
                 const isHigh = Math.random() > 0.5;
                 width = 45; height = 40; bottom = isHigh ? 130 : 60;
                 iconHTML = `
@@ -498,10 +485,11 @@
         }
 
         function resetGame() {
-            isGameOver = false; score = 0; baseGameSpeed = 7.5;
+            isGameOver = false; isPaused = false; score = 0; baseGameSpeed = 7.5;
             dinoBottom = 45; velocity = 0;
             isJumping = false; isDucking = false; frames = 0; nextSpawnFrame = 60;
 
+            pauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
             document.body.classList.remove('night'); isNight = false;
             celestial.className = 'fa-solid fa-sun';
 
@@ -509,9 +497,6 @@
 
             obstacles.forEach(obs => obs.element.remove()); obstacles = [];
             clouds.forEach(c => c.element.remove()); clouds = [];
-
-            // Remove os planetas que estavam na tela
-            planets.forEach(p => p.element.remove()); planets = [];
 
             gameOverScreen.style.display = 'none';
 
@@ -533,7 +518,6 @@
         }
 
         function updateEntities(activeSpeed) {
-            // Obstáculos
             for (let i = 0; i < obstacles.length; i++) {
                 let obs = obstacles[i];
                 obs.x -= activeSpeed;
@@ -556,18 +540,10 @@
                 if (obs.x < -100) { obs.element.remove(); obstacles.splice(i, 1); i--; }
             }
 
-            // Nuvens
             for (let i = 0; i < clouds.length; i++) {
                 clouds[i].x -= activeSpeed * clouds[i].speed;
                 clouds[i].element.style.left = clouds[i].x + 'px';
                 if (clouds[i].x < -150) { clouds[i].element.remove(); clouds.splice(i, 1); i--; }
-            }
-
-            // Planetas (Movimento contínuo, mesmo de dia, para sumirem naturalmente)
-            for (let i = 0; i < planets.length; i++) {
-                planets[i].x -= activeSpeed * planets[i].speed;
-                planets[i].element.style.left = planets[i].x + 'px';
-                if (planets[i].x < -150) { planets[i].element.remove(); planets.splice(i, 1); i--; }
             }
         }
 
@@ -581,7 +557,7 @@
         }
 
         function gameLoop() {
-            if (isGameOver) return;
+            if (isGameOver || isPaused) return;
 
             let activeSpeed = isNight ? baseGameSpeed * 1.25 : baseGameSpeed;
 
@@ -594,15 +570,11 @@
             score += 0.08;
             scoreElement.innerText = formatScore(score);
 
-            // Transição Dia/Noite
             let currentIsNight = Math.floor(score / 20) % 2 !== 0;
 
             if (currentIsNight && !isNight) {
                 isNight = true;
                 document.body.classList.add('night'); celestial.className = 'fa-solid fa-moon';
-                // Nasce alguns planetas instantaneamente no início da noite
-                spawnPlanet(600);
-                spawnPlanet(850);
             } else if (!currentIsNight && isNight) {
                 isNight = false;
                 document.body.classList.remove('night'); celestial.className = 'fa-solid fa-sun';
@@ -620,23 +592,30 @@
                 nextSpawnFrame = frames + Math.floor(Math.random() * (maxSpace - minSpace)) + minSpace;
             }
 
-            // Chance de nascer nuvens
             if (Math.random() < 0.015 && clouds.length < 6) { spawnCloud(); }
-
-            // Chance de nascer novos planetas (apenas de noite)
-            if (isNight && Math.random() < 0.005 && planets.length < 4) { spawnPlanet(); }
 
             animationId = requestAnimationFrame(gameLoop);
         }
 
+        // Eventos de clique e toque do botão de pausa
+        pauseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            togglePause();
+        });
+
         document.addEventListener('keydown', (e) => {
+            if (e.code === 'KeyP' || e.code === 'Escape') {
+                togglePause();
+                return;
+            }
             if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); jump(); }
             if (e.code === 'ArrowDown') { e.preventDefault(); duck(true); }
         });
+
         document.addEventListener('keyup', (e) => { if (e.code === 'ArrowDown') duck(false); });
 
         container.addEventListener('touchstart', (e) => {
-            if (e.target.closest('.restart-btn')) return;
+            if (e.target.closest('.restart-btn') || e.target.closest('#pause-btn')) return;
             e.preventDefault();
             const touchY = e.touches[0].clientY;
             const centerY = container.getBoundingClientRect().top + (container.getBoundingClientRect().height / 2);
@@ -644,7 +623,8 @@
         }, { passive: false });
 
         container.addEventListener('touchend', (e) => {
-            if (e.target.closest('.restart-btn')) return; duck(false);
+            if (e.target.closest('.restart-btn') || e.target.closest('#pause-btn')) return;
+            duck(false);
         });
 
         document.querySelector('.restart-btn').addEventListener('click', jump);
