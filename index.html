@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dragon Run - Dynamic Universe</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -25,6 +25,11 @@
             --ground-bottom: #0f1620;
         }
 
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -32,14 +37,14 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: linear-gradient(to bottom, var(--bg-top), var(--bg-bottom));
+            background: #111;
             font-family: 'Fredoka', sans-serif;
             overflow: hidden;
-            transition: background 1.5s ease;
             user-select: none;
             -webkit-user-select: none;
         }
 
+        /* Layout Padrão para Desktop (Quadro Fixo de 900x380) */
         #game-container {
             width: 900px;
             height: 380px;
@@ -47,10 +52,41 @@
             background: linear-gradient(to bottom, var(--bg-top), var(--bg-bottom));
             overflow: hidden;
             border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
             border: 4px solid rgba(255, 255, 255, 0.2);
             transition: background 1.5s ease;
             cursor: pointer;
+        }
+
+        /* Animação para tremer a tela no impacto do meteoro */
+        .shake {
+            animation: earthquake 0.3s ease-in-out;
+        }
+
+        @keyframes earthquake {
+            0% {
+                transform: translate(0, 0);
+            }
+
+            20% {
+                transform: translate(-8px, 6px);
+            }
+
+            40% {
+                transform: translate(8px, -6px);
+            }
+
+            60% {
+                transform: translate(-5px, 4px);
+            }
+
+            80% {
+                transform: translate(5px, -2px);
+            }
+
+            100% {
+                transform: translate(0, 0);
+            }
         }
 
         /*=========================================
@@ -148,10 +184,10 @@
         #dino {
             position: absolute;
             bottom: 45px;
-            left: 80px;
+            left: 50px;
             z-index: 3;
             color: #ff5722;
-            font-size: 60px;
+            font-size: 55px;
             filter: drop-shadow(3px 5px 5px rgba(0, 0, 0, 0.4));
             transition: transform 0.15s ease;
         }
@@ -180,7 +216,7 @@
         }
 
         /*=========================================
-           OBSTÁCULOS COM NOVAS ANIMAÇÕES
+           OBSTÁCULOS E METEORO
         =========================================*/
         .obstacle {
             position: absolute;
@@ -191,7 +227,14 @@
             filter: drop-shadow(3px 6px 5px rgba(0, 0, 0, 0.4));
         }
 
-        /* Foguete */
+        /* Animação de Rotação do Meteoro Caindo */
+        .meteor-falling-icon {
+            color: #e67e22;
+            font-size: 45px;
+            transform: rotate(135deg);
+            filter: drop-shadow(-5px -5px 10px #f39c12);
+        }
+
         .fly-wrapper {
             animation: float-rocket 0.6s infinite ease-in-out alternate;
         }
@@ -218,7 +261,6 @@
             }
         }
 
-        /* Fogo */
         .fire-wrapper {
             animation: flicker 0.3s infinite alternate;
         }
@@ -235,7 +277,6 @@
             }
         }
 
-        /* Fantasma */
         .ghost-wrapper {
             animation: ghost-float 1s infinite ease-in-out alternate;
         }
@@ -251,7 +292,7 @@
         }
 
         /*=========================================
-           INTERFACE
+           INTERFACE & BOTÕES
         =========================================*/
         #pause-btn {
             position: absolute;
@@ -277,6 +318,31 @@
         #pause-btn:hover {
             transform: scale(1.1);
             background: rgba(0, 0, 0, 0.4);
+        }
+
+        #mobile-jump-btn {
+            display: none;
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            width: 75px;
+            height: 75px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            color: #fff;
+            font-size: 30px;
+            z-index: 15;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+            touch-action: manipulation;
+        }
+
+        #mobile-jump-btn:active {
+            transform: scale(0.9);
+            background: rgba(255, 255, 255, 0.6);
         }
 
         #score-board {
@@ -335,16 +401,64 @@
             transform: scale(1.1);
             background-color: #f39c12;
         }
+
+        /*=========================================
+           MODO MOBILE (Tela Cheia + Botão)
+        =========================================*/
+        @media (max-width: 768px),
+        (pointer: coarse) {
+            #game-container {
+                width: 100vw !important;
+                height: 100vh !important;
+                border-radius: 0;
+                border: none;
+                box-shadow: none;
+            }
+
+            #mobile-jump-btn {
+                display: flex;
+            }
+
+            #score-board {
+                font-size: 18px;
+                top: 15px;
+                right: 15px;
+            }
+
+            #pause-btn {
+                top: 12px;
+                left: 15px;
+                width: 40px;
+                height: 40px;
+            }
+
+            #celestial {
+                font-size: 45px;
+                right: 60px;
+            }
+
+            #game-over {
+                width: 85%;
+                padding: 20px 25px;
+            }
+
+            #game-over h1 {
+                font-size: 28px;
+            }
+        }
     </style>
 </head>
 
 <body>
 
     <div id="game-container">
-        <!-- Botão de Pausa no lado esquerdo superior -->
+        <!-- Botão de Pausa -->
         <div id="pause-btn" title="Pausar Jogo (P)"><i class="fa-solid fa-pause"></i></div>
 
-        <!-- O céu noturno -->
+        <!-- Botão Exclusivo para Telas Mobile -->
+        <div id="mobile-jump-btn"><i class="fa-solid fa-arrow-up"></i></div>
+
+        <!-- Céu noturno -->
         <div id="night-sky"></div>
 
         <i id="celestial" class="fa-solid fa-sun"></i>
@@ -373,6 +487,7 @@
         const hiScoreElement = document.getElementById('hi-score');
         const gameOverScreen = document.getElementById('game-over');
         const pauseBtn = document.getElementById('pause-btn');
+        const mobileJumpBtn = document.getElementById('mobile-jump-btn');
 
         let isJumping = false; let isDucking = false; let isGameOver = false; let isPaused = false;
         let score = 0; let isNight = false;
@@ -387,6 +502,8 @@
 
         let dinoBottom = 45; let gravity = 1.1; let velocity = 0; const jumpPower = 18.5;
         let animationId; let groundPos = 0;
+
+        function getContainerWidth() { return container.clientWidth; }
 
         function createStars() {
             nightSky.innerHTML = '';
@@ -437,6 +554,13 @@
             }
         }
 
+        function triggerEarthquake() {
+            container.classList.remove('shake');
+            void container.offsetWidth; // Força reflow para reiniciar animação
+            container.classList.add('shake');
+            setTimeout(() => container.classList.remove('shake'), 300);
+        }
+
         function spawnObstacle() {
             const obstacle = document.createElement('div');
             obstacle.classList.add('obstacle');
@@ -444,6 +568,7 @@
             let r = Math.random();
             let width, height, bottom;
             let iconHTML = '';
+            let isMeteor = false;
 
             if (r < 0.20) {
                 width = 30; height = 45; bottom = 45;
@@ -455,13 +580,10 @@
                 width = 50; height = 55; bottom = 45;
                 iconHTML = `<i class="fa-solid fa-mountain" style="color: #7f8c8d; font-size: 60px;"></i>`;
             } else if (r < 0.80) {
-                if (isNight) {
-                    width = 35; height = 40; bottom = 55 + (Math.random() * 20);
-                    iconHTML = `<div class="ghost-wrapper"><i class="fa-solid fa-ghost" style="color: #ecf0f1; font-size: 45px; opacity: 0.9;"></i></div>`;
-                } else {
-                    width = 40; height = 35; bottom = 45;
-                    iconHTML = `<i class="fa-solid fa-meteor" style="color: #d35400; font-size: 45px; transform: scaleX(-1);"></i>`;
-                }
+                // METEORO DIAGONAL
+                isMeteor = true;
+                width = 40; height = 40; bottom = 45;
+                iconHTML = `<i class="fa-solid fa-meteor meteor-falling-icon"></i>`;
             } else {
                 const isHigh = Math.random() > 0.5;
                 width = 45; height = 40; bottom = isHigh ? 130 : 60;
@@ -471,20 +593,44 @@
                     </div>`;
             }
 
+            const cWidth = getContainerWidth();
+            let startX = cWidth;
+            let currentY = bottom;
+            let falling = false;
+
+            if (isMeteor) {
+                // Meteoro cai da esquerda para a direita bem longe do boneco
+                startX = 200 + Math.random() * (cWidth - 400);
+                currentY = 320;
+                falling = true;
+            }
+
             obstacle.style.width = width + 'px'; obstacle.style.height = height + 'px';
-            obstacle.style.left = '900px'; obstacle.style.bottom = bottom + 'px';
+            obstacle.style.left = startX + 'px'; obstacle.style.bottom = currentY + 'px';
             obstacle.innerHTML = iconHTML;
 
-            obstacle.dataset.width = width; obstacle.dataset.height = height; obstacle.dataset.bottom = bottom;
-            container.appendChild(obstacle); obstacles.push({ element: obstacle, x: 900 });
+            obstacle.dataset.width = width;
+            obstacle.dataset.height = height;
+            obstacle.dataset.bottom = bottom;
+
+            container.appendChild(obstacle);
+            obstacles.push({
+                element: obstacle,
+                x: startX,
+                y: currentY,
+                targetY: bottom,
+                isMeteor: isMeteor,
+                falling: falling
+            });
         }
 
         function spawnCloud() {
             const cloud = document.createElement('i');
+            const spawnX = getContainerWidth();
             cloud.className = 'fa-solid fa-cloud cloud';
             cloud.style.fontSize = (Math.random() * 50 + 30) + 'px';
-            cloud.style.left = '900px'; cloud.style.top = (Math.random() * 150 + 20) + 'px';
-            container.appendChild(cloud); clouds.push({ element: cloud, x: 900, speed: (Math.random() * 0.4) + 0.1 });
+            cloud.style.left = spawnX + 'px'; cloud.style.top = (Math.random() * 150 + 20) + 'px';
+            container.appendChild(cloud); clouds.push({ element: cloud, x: spawnX, speed: (Math.random() * 0.4) + 0.1 });
         }
 
         function resetGame() {
@@ -503,8 +649,9 @@
 
             gameOverScreen.style.display = 'none';
 
+            const width = getContainerWidth();
             for (let i = 0; i < 4; i++) {
-                spawnCloud(); clouds[i].x = Math.random() * 800; clouds[i].element.style.left = clouds[i].x + 'px';
+                spawnCloud(); clouds[i].x = Math.random() * (width - 100); clouds[i].element.style.left = clouds[i].x + 'px';
             }
             gameLoop();
         }
@@ -521,13 +668,35 @@
         }
 
         function updateEntities(activeSpeed) {
+            const dinoLeft = dino.offsetLeft;
+
             for (let i = 0; i < obstacles.length; i++) {
                 let obs = obstacles[i];
-                obs.x -= activeSpeed;
+
+                if (obs.falling) {
+                    // Mover na diagonal (caindo da esquerda para a direita)
+                    obs.x += activeSpeed * 1.2;
+                    obs.y -= 10;
+
+                    if (obs.y <= obs.targetY) {
+                        obs.y = obs.targetY;
+                        obs.falling = false;
+
+                        // Meteoro impactou o chão: treme o cenário e vira obstáculo estático
+                        triggerEarthquake();
+                        obs.element.innerHTML = `<i class="fa-solid fa-mound" style="color: #7f8c8d; font-size: 45px;"></i>`;
+                    }
+                    obs.element.style.bottom = obs.y + 'px';
+                } else {
+                    // Movimento padrão de rolagem do chão
+                    obs.x -= activeSpeed;
+                }
+
                 obs.element.style.left = obs.x + 'px';
 
+                // Hitbox para colisão
                 let dinoHitbox = {
-                    left: 80 + 10, right: 80 + 55,
+                    left: dinoLeft + 10, right: dinoLeft + 50,
                     bottom: dinoBottom + 5, top: dinoBottom + (isDucking ? 35 : 55)
                 };
                 let obsHitbox = {
@@ -540,9 +709,14 @@
                     endGame();
                 }
 
-                if (obs.x < -100) { obs.element.remove(); obstacles.splice(i, 1); i--; }
+                if (obs.x < -100 || obs.x > getContainerWidth() + 300) {
+                    obs.element.remove();
+                    obstacles.splice(i, 1);
+                    i--;
+                }
             }
 
+            // Nuvens
             for (let i = 0; i < clouds.length; i++) {
                 clouds[i].x -= activeSpeed * clouds[i].speed;
                 clouds[i].element.style.left = clouds[i].x + 'px';
@@ -600,19 +774,26 @@
             animationId = requestAnimationFrame(gameLoop);
         }
 
-        // Eventos do botão de pausa
+        // Botão de pausa
         pauseBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             togglePause();
         });
 
-        // Clique de Mouse na tela inteira do jogo para PULAR
-        container.addEventListener('mousedown', (e) => {
-            if (e.target.closest('#pause-btn') || e.target.closest('.restart-btn')) return;
+        // Clique no botão mobile de pular
+        mobileJumpBtn.addEventListener('touchstart', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
             jump();
         });
 
-        // Controles de Teclado
+        // Clique com Mouse para Pular no Desktop
+        container.addEventListener('mousedown', (e) => {
+            if (e.target.closest('#pause-btn') || e.target.closest('.restart-btn') || e.target.closest('#mobile-jump-btn')) return;
+            jump();
+        });
+
+        // Teclas
         document.addEventListener('keydown', (e) => {
             if (e.code === 'KeyP' || e.code === 'Escape') {
                 togglePause();
@@ -624,23 +805,24 @@
 
         document.addEventListener('keyup', (e) => { if (e.code === 'ArrowDown') duck(false); });
 
-        // Suporte para Telas de Celular / Touch Screen
+        // Touch na tela (Mobile)
         container.addEventListener('touchstart', (e) => {
-            if (e.target.closest('.restart-btn') || e.target.closest('#pause-btn')) return;
+            if (e.target.closest('.restart-btn') || e.target.closest('#pause-btn') || e.target.closest('#mobile-jump-btn')) return;
             e.preventDefault();
             const touchY = e.touches[0].clientY;
-            const centerY = container.getBoundingClientRect().top + (container.getBoundingClientRect().height / 2);
+            const centerY = container.getBoundingClientRect().height / 2;
             if (touchY > centerY) duck(true); else jump();
         }, { passive: false });
 
         container.addEventListener('touchend', (e) => {
-            if (e.target.closest('.restart-btn') || e.target.closest('#pause-btn')) return;
+            if (e.target.closest('.restart-btn') || e.target.closest('#pause-btn') || e.target.closest('#mobile-jump-btn')) return;
             duck(false);
         });
 
         document.querySelector('.restart-btn').addEventListener('click', jump);
 
-        for (let i = 0; i < 4; i++) { spawnCloud(); clouds[i].x = Math.random() * 800; clouds[i].element.style.left = clouds[i].x + 'px'; }
+        const width = getContainerWidth();
+        for (let i = 0; i < 4; i++) { spawnCloud(); clouds[i].x = Math.random() * (width - 100); clouds[i].element.style.left = clouds[i].x + 'px'; }
         createStars();
         gameLoop();
     </script>
