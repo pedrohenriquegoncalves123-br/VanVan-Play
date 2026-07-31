@@ -584,16 +584,16 @@
             setTimeout(() => container.classList.remove('shake'), 300);
         }
 
-        // Função exclusiva para criar o Meteoro com Rastro de Fogo
+        // Função para criar o Meteoro que virará obstáculo no chão
         function spawnMeteor() {
             const obstacle = document.createElement('div');
             obstacle.classList.add('obstacle');
 
-            let width = 40; let height = 40; let bottom = 45;
+            let width = 45; let height = 45; let bottom = 45;
             let iconHTML = `<div class="fire-tail-wrapper"><i class="fa-solid fa-meteor meteor-falling-icon"></i></div>`;
 
             const cWidth = getContainerWidth();
-            let startX = 180 + Math.random() * (cWidth - 360);
+            let startX = 220 + Math.random() * (cWidth - 400);
             let currentY = 320;
 
             obstacle.style.width = width + 'px'; obstacle.style.height = height + 'px';
@@ -693,6 +693,9 @@
             for (let i = 0; i < 4; i++) {
                 spawnCloud(); clouds[i].x = Math.random() * (width - 100); clouds[i].element.style.left = clouds[i].x + 'px';
             }
+
+            // Solta meteoro imediato ao (re)iniciar
+            spawnMeteor();
             gameLoop();
         }
 
@@ -714,7 +717,7 @@
                 let obs = obstacles[i];
 
                 if (obs.falling) {
-                    // Mover na diagonal com trajetória estendida
+                    // Tragetória do meteoro
                     obs.x += activeSpeed * 1.2;
                     obs.y -= 9;
 
@@ -722,9 +725,9 @@
                         obs.y = obs.targetY;
                         obs.falling = false;
 
-                        // Meteoro impacta o solo
+                        // Meteoro impacta o solo e se fixa como pedra de meteoro
                         triggerEarthquake();
-                        obs.element.innerHTML = `<i class="fa-solid fa-mound" style="color: #7f8c8d; font-size: 45px;"></i>`;
+                        obs.element.innerHTML = `<i class="fa-solid fa-mound" style="color: #e67e22; font-size: 45px; filter: drop-shadow(0 0 8px #d35400);"></i>`;
                     }
                     obs.element.style.bottom = obs.y + 'px';
                 } else {
@@ -784,10 +787,10 @@
             score += 0.08;
             scoreElement.innerText = formatScore(score);
 
-            // Verifica a cada 100 pontos alcançados para soltar o Meteoro
-            let currentHundred = Math.floor(score / 100);
-            if (currentHundred > lastMeteorScore) {
-                lastMeteorScore = currentHundred;
+            // Verifica a cada 45 pontos alcançados para soltar um novo Meteoro
+            let currentFortyFive = Math.floor(score / 45);
+            if (currentFortyFive > lastMeteorScore) {
+                lastMeteorScore = currentFortyFive;
                 spawnMeteor();
             }
 
@@ -868,6 +871,9 @@
         const width = getContainerWidth();
         for (let i = 0; i < 4; i++) { spawnCloud(); clouds[i].x = Math.random() * (width - 100); clouds[i].element.style.left = clouds[i].x + 'px'; }
         createStars();
+
+        // Solta meteoro no início do jogo (0 pontos)
+        spawnMeteor();
         gameLoop();
     </script>
 </body>
