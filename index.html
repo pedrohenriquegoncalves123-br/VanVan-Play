@@ -343,6 +343,145 @@
             background: rgba(0, 0, 0, 0.4);
         }
 
+        /* Botão de Recordes com SVG */
+        #records-btn {
+            position: absolute;
+            top: 20px;
+            left: 80px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 10;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        #records-btn:hover {
+            transform: scale(1.1);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        #records-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: var(--text-color);
+        }
+
+        /* Modal de Recordes */
+        #records-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 400px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 25px;
+            border-radius: 20px;
+            z-index: 30;
+            display: none;
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            text-align: center;
+        }
+
+        #records-modal h2 {
+            margin-top: 0;
+            color: #f1c40f;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .records-list {
+            margin: 15px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 16px;
+        }
+
+        .record-item:nth-child(1) {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+
+        .record-item:nth-child(2) {
+            color: #bdc3c7;
+            font-weight: bold;
+        }
+
+        .record-item:nth-child(3) {
+            color: #e67e22;
+            font-weight: bold;
+        }
+
+        .close-records-btn {
+            background-color: #e74c3c;
+            color: #fff;
+            padding: 8px 25px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform 0.2s;
+        }
+
+        .close-records-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Form para enviar recorde no GameOver */
+        #submit-score-container {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #player-name-input {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            text-align: center;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 16px;
+        }
+
+        .submit-btn {
+            background-color: #2ecc71;
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: 'Fredoka', sans-serif;
+            transition: background-color 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: #27ae60;
+        }
+
         #mobile-jump-btn {
             display: none;
             position: absolute;
@@ -418,6 +557,7 @@
             transition: all 0.2s;
             border: none;
             display: inline-block;
+            margin-top: 10px;
         }
 
         .restart-btn:hover {
@@ -426,7 +566,7 @@
         }
 
         /*=========================================
-           MODO MOBILE (Alinhado ao Topo + Espaçamento Inferior)
+           MODO MOBILE
         =========================================*/
         @media (max-width: 768px),
         (pointer: coarse) {
@@ -437,10 +577,8 @@
             #game-container {
                 width: 100vw !important;
                 height: calc(100vh - 80px) !important;
-                /* Calcula a altura deixando 80px de margem inferior */
                 margin-top: 0 !important;
                 margin-bottom: 80px !important;
-                /* Espaçamento no bottom para livrar os botões */
                 border-radius: 0 0 16px 16px;
                 border-left: none;
                 border-right: none;
@@ -462,6 +600,13 @@
             #pause-btn {
                 top: 12px;
                 left: 15px;
+                width: 40px;
+                height: 40px;
+            }
+
+            #records-btn {
+                top: 12px;
+                left: 65px;
                 width: 40px;
                 height: 40px;
             }
@@ -494,6 +639,14 @@
         <!-- Botão de Pausa -->
         <div id="pause-btn" title="Pausar Jogo (P)"><i class="fa-solid fa-pause"></i></div>
 
+        <!-- Botão de Recordes (SVG) -->
+        <div id="records-btn" title="Placar de Recordes">
+            <svg viewBox="0 0 24 24">
+                <path
+                    d="M19,5h-2V3H7v2H5C3.9,5,3,5.9,3,7v1c0,2.55,1.92,4.63,4.39,4.94C8.07,14.28,9.39,15.31,11,15.82V18H8v2h8v-2h-3v-2.18 c1.61-0.51,2.93-1.54,3.61-2.88C19.08,12.63,21,10.55,21,8V7C21,5.9,20.1,5,19,5z M5,8V7h2v3.82C5.84,10.4,5,9.3,5,8z M19,8 c0,1.3-0.84,2.4-2,2.82V7h2V8z" />
+            </svg>
+        </div>
+
         <!-- Botão Exclusivo para Telas Mobile -->
         <div id="mobile-jump-btn"><i class="fa-solid fa-arrow-up"></i></div>
 
@@ -509,7 +662,26 @@
 
         <div id="game-over">
             <h1><i class="fa-solid fa-skull"></i> FIM DE JOGO</h1>
+            <div id="submit-score-container">
+                <input type="text" id="player-name-input" placeholder="Seu Nome" maxlength="12">
+                <button class="submit-btn" id="submit-score-btn">Salvar Recorde</button>
+            </div>
             <div class="restart-btn"><i class="fa-solid fa-rotate-right"></i> RECOMEÇAR</div>
+        </div>
+
+        <!-- Modal do Placar de Recordes -->
+        <div id="records-modal">
+            <h2>
+                <svg style="width: 24px; height: 24px; fill: #f1c40f;" viewBox="0 0 24 24">
+                    <path
+                        d="M19,5h-2V3H7v2H5C3.9,5,3,5.9,3,7v1c0,2.55,1.92,4.63,4.39,4.94C8.07,14.28,9.39,15.31,11,15.82V18H8v2h8v-2h-3v-2.18 c1.61-0.51,2.93-1.54,3.61-2.88C19.08,12.63,21,10.55,21,8V7C21,5.9,20.1,5,19,5z M5,8V7h2v3.82C5.84,10.4,5,9.3,5,8z M19,8 c0,1.3-0.84,2.4-2,2.82V7h2V8z" />
+                </svg>
+                TOP 10 RECORDES
+            </h2>
+            <div class="records-list" id="records-list-content">
+                Carregando...
+            </div>
+            <button class="close-records-btn" id="close-records-btn">FECHAR</button>
         </div>
 
         <i id="dino" class="fa-solid fa-dragon running"></i>
@@ -517,6 +689,8 @@
     </div>
 
     <script>
+        const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbw3lBb8FDEYIq-hrnFbuCeZa_sRvcjLs0KUSI1LOXT_0n4HulHzw3X8Q_fP3CZ9wX1_pQ/exec";
+
         const container = document.getElementById('game-container');
         const ground = document.getElementById('ground');
         const dino = document.getElementById('dino');
@@ -526,11 +700,24 @@
         const hiScoreElement = document.getElementById('hi-score');
         const gameOverScreen = document.getElementById('game-over');
         const pauseBtn = document.getElementById('pause-btn');
+        const recordsBtn = document.getElementById('records-btn');
+        const recordsModal = document.getElementById('records-modal');
+        const closeRecordsBtn = document.getElementById('close-records-btn');
+        const recordsListContent = document.getElementById('records-list-content');
+        const submitScoreBtn = document.getElementById('submit-score-btn');
+        const playerNameInput = document.getElementById('player-name-input');
+        const submitScoreContainer = document.getElementById('submit-score-container');
         const mobileJumpBtn = document.getElementById('mobile-jump-btn');
 
         let isJumping = false; let isDucking = false; let isGameOver = false; let isPaused = false;
         let score = 0; let lastMeteorScore = 0; let isNight = false;
         let hiScore = localStorage.getItem('dragonRunGalaxy') || 0;
+
+        // Recupera o nome digitado anteriormente pelo jogador
+        let savedPlayerName = localStorage.getItem('dragonRunPlayerName') || '';
+        if (savedPlayerName) {
+            playerNameInput.value = savedPlayerName;
+        }
 
         function formatScore(num) { return Math.floor(num).toString().padStart(5, '0'); }
         hiScoreElement.innerText = formatScore(hiScore);
@@ -559,6 +746,70 @@
         }
 
         createStars();
+
+        /* Integração com Google Sheets para Buscar Placar */
+        async function fetchRecords() {
+            if (!GOOGLE_SHEETS_URL) {
+                recordsListContent.innerHTML = '<div style="text-align:center; padding: 10px;">Planilha não configurada.</div>';
+                return;
+            }
+            recordsListContent.innerHTML = '<div style="text-align:center;">Buscando recordes...</div>';
+            try {
+                const response = await fetch(GOOGLE_SHEETS_URL);
+                const data = await response.json();
+                recordsListContent.innerHTML = '';
+                
+                if (!data || data.length === 0) {
+                    recordsListContent.innerHTML = '<div style="text-align:center;">Nenhum recorde registrado ainda!</div>';
+                    return;
+                }
+
+                // Ordena e limita estritamente aos 10 melhores
+                const sortedTop10 = data
+                    .sort((a, b) => Number(b[1]) - Number(a[1]))
+                    .slice(0, 10);
+
+                sortedTop10.forEach((item, index) => {
+                    const row = document.createElement('div');
+                    row.className = 'record-item';
+                    row.innerHTML = `<span>#${index + 1} ${item[0]}</span> <span>${formatScore(item[1])}</span>`;
+                    recordsListContent.appendChild(row);
+                });
+            } catch (e) {
+                recordsListContent.innerHTML = '<div style="text-align:center; color:#e74c3c;">Erro ao conectar com o placar.</div>';
+            }
+        }
+
+        /* Salvar Recorde no Google Sheets */
+        async function submitScore(name, scoreVal) {
+            localStorage.setItem('dragonRunPlayerName', name);
+            submitScoreBtn.innerText = "Enviando...";
+            submitScoreBtn.disabled = true;
+
+            const sendUrl = `${GOOGLE_SHEETS_URL}?name=${encodeURIComponent(name)}&score=${Math.floor(scoreVal)}`;
+
+            try {
+                await fetch(sendUrl, { mode: 'no-cors' });
+                submitScoreContainer.style.display = 'none';
+                submitScoreBtn.innerText = "Salvar Recorde";
+                submitScoreBtn.disabled = false;
+                openRecords();
+            } catch (e) {
+                console.error("Erro ao enviar recorde", e);
+                submitScoreBtn.innerText = "Salvar Recorde";
+                submitScoreBtn.disabled = false;
+            }
+        }
+
+        function openRecords() {
+            if (!isPaused && !isGameOver) togglePause();
+            recordsModal.style.display = 'block';
+            fetchRecords();
+        }
+
+        function closeRecords() {
+            recordsModal.style.display = 'none';
+        }
 
         function togglePause() {
             if (isGameOver) return;
@@ -704,6 +955,11 @@
 
             gameOverScreen.style.display = 'none';
 
+            // Garante que o formulário para enviar novos pontos reapareça a cada rodada
+            submitScoreContainer.style.display = 'flex';
+            submitScoreBtn.innerText = "Salvar Recorde";
+            submitScoreBtn.disabled = false;
+
             const width = getContainerWidth();
             for (let i = 0; i < 4; i++) {
                 spawnCloud(); clouds[i].x = Math.random() * (width - 100); clouds[i].element.style.left = clouds[i].x + 'px';
@@ -777,7 +1033,16 @@
         }
 
         function endGame() {
-            isGameOver = true; gameOverScreen.style.display = 'block'; dino.classList.remove('running');
+            isGameOver = true;
+            gameOverScreen.style.display = 'block';
+            submitScoreContainer.style.display = 'flex';
+
+            let nameSaved = localStorage.getItem('dragonRunPlayerName');
+            if (nameSaved) {
+                playerNameInput.value = nameSaved;
+            }
+
+            dino.classList.remove('running');
             cancelAnimationFrame(animationId);
             if (score > hiScore) {
                 hiScore = score; localStorage.setItem('dragonRunGalaxy', hiScore);
@@ -837,6 +1102,24 @@
             togglePause();
         });
 
+        recordsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openRecords();
+        });
+
+        closeRecordsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeRecords();
+        });
+
+        submitScoreBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const name = playerNameInput.value.trim();
+            if (name) {
+                submitScore(name, score);
+            }
+        });
+
         mobileJumpBtn.addEventListener('touchstart', (e) => {
             e.stopPropagation();
             e.preventDefault();
@@ -844,11 +1127,12 @@
         }, { passive: false });
 
         container.addEventListener('mousedown', (e) => {
-            if (e.target.closest('#pause-btn') || e.target.closest('.restart-btn') || e.target.closest('#mobile-jump-btn')) return;
+            if (e.target.closest('#pause-btn') || e.target.closest('#records-btn') || e.target.closest('#records-modal') || e.target.closest('.restart-btn') || e.target.closest('#mobile-jump-btn') || e.target.closest('#submit-score-container')) return;
             jump();
         });
 
         document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
             if (e.code === 'KeyP' || e.code === 'Escape') {
                 togglePause();
                 return;
@@ -857,10 +1141,13 @@
             if (e.code === 'ArrowDown') { e.preventDefault(); duck(true); }
         });
 
-        document.addEventListener('keyup', (e) => { if (e.code === 'ArrowDown') duck(false); });
+        document.addEventListener('keyup', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            if (e.code === 'ArrowDown') duck(false);
+        });
 
         container.addEventListener('touchstart', (e) => {
-            if (e.target.closest('.restart-btn') || e.target.closest('#pause-btn') || e.target.closest('#mobile-jump-btn')) return;
+            if (e.target.closest('.restart-btn') || e.target.closest('#pause-btn') || e.target.closest('#records-btn') || e.target.closest('#records-modal') || e.target.closest('#mobile-jump-btn') || e.target.closest('#submit-score-container')) return;
             e.preventDefault();
             const touchY = e.touches[0].clientY;
             const centerY = container.getBoundingClientRect().top + (container.getBoundingClientRect().height / 2);
@@ -868,7 +1155,7 @@
         }, { passive: false });
 
         container.addEventListener('touchend', (e) => {
-            if (e.target.closest('.restart-btn') || e.target.closest('#pause-btn') || e.target.closest('#mobile-jump-btn')) return;
+            if (e.target.closest('.restart-btn') || e.target.closest('#pause-btn') || e.target.closest('#records-btn') || e.target.closest('#records-modal') || e.target.closest('#mobile-jump-btn') || e.target.closest('#submit-score-container')) return;
             duck(false);
         });
 
