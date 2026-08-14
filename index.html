@@ -758,7 +758,7 @@
                 const response = await fetch(GOOGLE_SHEETS_URL);
                 const data = await response.json();
                 recordsListContent.innerHTML = '';
-                
+
                 if (!data || data.length === 0) {
                     recordsListContent.innerHTML = '<div style="text-align:center;">Nenhum recorde registrado ainda!</div>';
                     return;
